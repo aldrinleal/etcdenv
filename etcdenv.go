@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/coreos/go-etcd/etcd"
 	"os"
-	"os/exec"
 	"strings"
 	"syscall"
 )
@@ -62,15 +61,10 @@ func main() {
 		os.Exit(0)
 	}
 
-	cmd := exec.Command(flag.Args()[0], flag.Args()[1:]...)
-	cmd.Env = envs
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	err = cmd.Run()
-	if cmd.Process == nil {
+	err = syscall.Exec(flag.Args()[0], flag.Args()[1:], envs)
+
+	if nil != err {
 		fmt.Fprintf(os.Stderr, "etcdenv: %s\n", err)
 		os.Exit(1)
 	}
-	os.Exit(cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus())
 }
